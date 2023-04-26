@@ -5,8 +5,8 @@ class ImageEncoder(nn.Module):
     def __init__(self, embedding_size):
         super(ImageEncoder, self).__init__()
         self.vgg16 = models.vgg16(pretrained=True)
-        self.resnet50 = models.resnet50(pretrained=True)
         self.vgg16.classifier = nn.Sequential(*list(self.vgg16.classifier.children())[:-1])
+        self.resnet50 = models.resnet50(pretrained=True)
         self.fc = nn.Linear(self.resnet50.fc.in_features, embedding_size)
     
     def forward(self, x):

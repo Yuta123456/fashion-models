@@ -16,7 +16,9 @@ num_epochs = 10
 batch_size = 32
 learning_rate = 0.001
 embedding_size = 1000
-
+hidden_size = 3
+vocab_size = 30000
+num_layers = 64
 # データセットの読み込み
 transform = transforms.Compose([
     transforms.Resize(256),
@@ -31,7 +33,7 @@ train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
 # モデルの定義
 image_model = ImageEncoder(embedding_size=embedding_size)
 # TODO:
-text_model = CaptionEncoder(embedding_size=embedding_size)
+text_model = CaptionEncoder(vocab_size, embedding_size, hidden_size, num_layers)
 
 # 損失関数と最適化アルゴリズムの定義
 criterion = ContrastiveLoss()
