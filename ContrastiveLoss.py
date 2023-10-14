@@ -7,18 +7,12 @@ class ContrastiveLoss(nn.Module):
         super(ContrastiveLoss, self).__init__()
         self.margin = margin
 
-    def forward(self, outputs, labels):
-        # outputs は2つの埋め込みベクトルを含むタプルです
-        # labels は、2つの入力が同じクラスかどうかを示す0または1のテンソルです
-        # outputs[0] が画像の埋め込みベクトル、outputs[1] がキャプションの埋め込みベクトルです
-        image_embeddings, caption_embeddings = outputs[0], outputs[1]
-        
-        # コサイン類似度を計算します
-        # 2つの埋め込みベクトルがどの程度類似しているかを表します
-        sim = F.cosine_similarity(image_embeddings, caption_embeddings)
-        
-        # lossを計算します
-        # 同じクラスの場合は距離が小さくなり、違うクラスの場合は距離が大きくなるようにします
-        loss = torch.mean((1 - labels) * torch.pow(sim, 2) +
-                          (labels) * torch.pow(torch.clamp(self.margin - sim, min=0.0), 2))
+    def forward(self, z1, z2, y):
+        difference = z1 - z2
+        distance_squared = torch.sum(torch.pow(difference, 2), 1)
+        distance = torch.sqrt(distance_squared)
+        negative_distance = self.margin - distance
+        negative_distance = torch.clamp(negative_distance, min=0.0)
+        loss = (y * distance_squared + (1 - y) * torch.pow(negative_distance, 2)) / 2.0
+        loss = torch.sum(loss) / z1.size()[0]
         return loss
